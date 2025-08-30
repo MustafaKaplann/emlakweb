@@ -118,9 +118,9 @@ export default function Musterilerim() {
       <header className="bg-white shadow-sm">
         <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
           <div className="flex lg:flex-1">
-            <a href="/" className="-m-1.5 p-1.5">
+            <Link href="/" className="-m-1.5 p-1.5">
             <ArrowLeftCircleIcon className="h-8 w-8 text-gray-700 hover:text-blue-500 transition active:text-blue-500" />
-            </a>
+            </Link>
           </div>
           <div className="flex lg:hidden">
             <button
@@ -140,9 +140,9 @@ export default function Musterilerim() {
             ))}
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-            <a href="#" className="text-sm font-semibold text-gray-900">
+            <Link href="#" className="text-sm font-semibold text-gray-900">
               Çıkış <span aria-hidden="true">&rarr;</span>
-            </a>
+              </Link>
           </div>
         </nav>
       </header>
@@ -152,14 +152,14 @@ export default function Musterilerim() {
         <div className="fixed inset-0 z-50" />
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-100/10">
           <div className="flex items-center justify-between">
-            <a href="/" className="-m-1.5 p-1.5">
+            <Link href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Emlak Web</span>
               <img
                 alt="LOGO"
                 src=""
                 className="h-8 w-auto"
               />
-            </a>
+           </Link>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
