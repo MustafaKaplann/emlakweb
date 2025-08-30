@@ -155,7 +155,7 @@ export default function Musterilerim() {
           <div className="flex items-center justify-between">
             <Link href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Emlak Web</span>
-              <img
+              <Image
                 alt="LOGO"
                 src=""
                 className="h-8 w-auto"
@@ -299,7 +299,7 @@ export default function Musterilerim() {
                     </div>
                     {customer.notes && (
                       <p className="mt-2 text-sm text-gray-600 italic">
-                        "{customer.notes}"
+                        `{customer.notes}`
                       </p>
                     )}
                   </div>
@@ -388,7 +388,7 @@ export default function Musterilerim() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Notlar</label>
-                  <p className="mt-1 text-sm text-gray-900 italic">"{selectedCustomer.notes}"</p>
+                  <p className="mt-1 text-sm text-gray-900 italic">{selectedCustomer.notes}</p>
                 </div>
               </div>
               <div className="flex justify-end space-x-3 mt-6">

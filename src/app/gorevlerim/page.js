@@ -247,7 +247,7 @@ export default function Gorevlerim() {
           <div className="flex lg:flex-1">
             <Link href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Emlak Web</span>
-              <img alt="LOGO" src="" className="h-8 w-auto" />
+              <Image alt="LOGO" src="" className="h-8 w-auto" />
               </Link>
           </div>
           <div className="flex lg:hidden">
@@ -290,7 +290,7 @@ export default function Gorevlerim() {
           <div className="flex items-center justify-between">
             <Link href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Emlak Web</span>
-              <img alt="LOGO" src="" className="h-8 w-auto" />
+              <Image alt="LOGO" src="" className="h-8 w-auto" />
               </Link>
             <button
               type="button"

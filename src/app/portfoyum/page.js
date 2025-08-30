@@ -148,7 +148,7 @@ export default function Portfoyum() {
           <div className="flex lg:flex-1">
             <Link href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Emlak Web</span>
-              <img alt="LOGO" src="" className="h-8 w-auto" />
+              <Image alt="LOGO" src="" className="h-8 w-auto" />
               </Link>
           </div>
           <div className="flex lg:hidden">
@@ -183,7 +183,7 @@ export default function Portfoyum() {
           <div className="flex items-center justify-between">
             <Link href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Emlak Web</span>
-              <img alt="LOGO" src="" className="h-8 w-auto" />
+              <Image alt="LOGO" src="" className="h-8 w-auto" />
               </Link>
             <button
               type="button"
@@ -345,7 +345,7 @@ export default function Portfoyum() {
             {filteredProperties.map((property) => (
               <div key={property.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative">
-                  <img
+                  <Image
                     src={property.image}
                     alt={property.title}
                     className="w-full h-48 object-cover"
