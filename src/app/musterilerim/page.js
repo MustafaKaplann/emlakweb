@@ -1,5 +1,6 @@
 'use client'
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import {
@@ -67,7 +68,7 @@ const customers = [
     budget: '₺ 5.000.000',
     status: 'Pasif',
     lastContact: '2024-01-10',
-    notes: 'Karşıyaka\'da dükkan arıyor'
+    notes: `Karşıyaka'da dükkan arıyor`
   },
   {
     id: 4,
@@ -79,7 +80,7 @@ const customers = [
     budget: '₺ 1.800.000',
     status: 'Aktif',
     lastContact: '2024-01-16',
-    notes: 'Nilüfer\'de villa arıyor'
+    notes: `Nilüfer'de villa arıyor`
   },
   {
     id: 5,
@@ -91,7 +92,7 @@ const customers = [
     budget: '₺ 12.000',
     status: 'Aktif',
     lastContact: '2024-01-13',
-    notes: 'Muratpaşa\'da yazlık kiralık'
+    notes: `Muratpaşa'da yazlık kiralık`
   }
 ]
 

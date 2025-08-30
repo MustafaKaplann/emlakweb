@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import Link from "next/link";
+import Image from "next/image";
 
 import {
   Bars3Icon,
