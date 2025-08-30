@@ -324,6 +324,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
