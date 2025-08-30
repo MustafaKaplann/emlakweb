@@ -40,11 +40,11 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   return (
     <div
-      className="mainSec"
+      className="mainSec bg-position-[30%] sm:bg-center "
       style={{
         backgroundImage: "url('/sectionImg.jpg')",
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        // backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         height: "100vh",
         width: "100%",
@@ -324,7 +324,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      
+
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
