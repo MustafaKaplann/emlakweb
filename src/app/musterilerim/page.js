@@ -100,7 +100,6 @@ export default function Musterilerim() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('Tümü')
-  const [showAddCustomer, setShowAddCustomer] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState(null)
 
   const filteredCustomers = customers.filter(customer => {
@@ -207,13 +206,13 @@ export default function Musterilerim() {
                 Toplam {customers.length} müşteri, {customers.filter(c => c.status === 'Aktif').length} aktif
               </p>
             </div>
-            <button
-              onClick={() => setShowAddCustomer(true)}
+            <Link
+              href="/admin/musteri-ekle"
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <PlusIcon className="h-4 w-4 mr-2" />
               Yeni Müşteri
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -402,99 +401,6 @@ export default function Musterilerim() {
                   Düzenle
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add Customer Modal */}
-      {showAddCustomer && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Yeni Müşteri Ekle</h3>
-                <button
-                  onClick={() => setShowAddCustomer(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <XMarkIcon className="h-6 w-6" />
-                </button>
-              </div>
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Ad Soyad</label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Müşteri adı"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Telefon</label>
-                  <input
-                    type="tel"
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="+90 5XX XXX XX XX"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">E-posta</label>
-                  <input
-                    type="email"
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="ornek@email.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Konum</label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Şehir / İlçe"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Emlak Tipi</label>
-                  <select className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-                    <option>Konut - Satılık</option>
-                    <option>Konut - Kiralık</option>
-                    <option>Ticari - Satılık</option>
-                    <option>Ticari - Kiralık</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Bütçe</label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="₺ XXX.XXX"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Notlar</label>
-                  <textarea
-                    rows={3}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Müşteri hakkında notlar..."
-                  />
-                </div>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddCustomer(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                  >
-                    İptal
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
-                  >
-                    Kaydet
-                  </button>
-                </div>
-              </form>
             </div>
           </div>
         </div>

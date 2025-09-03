@@ -7,6 +7,7 @@ import Image from "next/image";
 
 import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
+import { useAdmin } from "../contexts/AdminContext";
 import {
   Bars3Icon,
   XMarkIcon,
@@ -27,6 +28,7 @@ import {
   EllipsisVerticalIcon,
   FolderIcon,
   UsersIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 
 const navigation = [
@@ -38,6 +40,7 @@ const navigation = [
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isAdmin, loginAsAdmin, logoutAdmin } = useAdmin();
   return (
     <div
       className="mainSec bg-position-[30%] sm:bg-center "
@@ -155,16 +158,34 @@ export default function Home() {
               ALT SLOGAN
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              {/* <a
-                href="#"
-                className="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-              >
-                Giriş Yap!
-              </a> */}
-              <Link href="#" className="text-sm/6 font-semibold text-white">
-                Giriş Yap <span aria-hidden="true">→</span>
-                </Link>
-            </div>
+  {isAdmin ? (
+    <>
+      {/* Admin Panel Button */}
+      <Link
+        href="/admin"
+        className="border border-gray-400 rounded-lg p-5 text-sm/6 font-semibold text-white hover:bg-gray-900 hover:border-gray-900 transition active:border-gray-900 active:bg-gray-900 flex items-center gap-2"
+      >
+        Admin Panel <span aria-hidden="true">→</span>
+      </Link>
+
+      {/* Admin Logout */}
+      <button
+        onClick={logoutAdmin}
+        className="border border-red-500 rounded-lg p-5 text-sm/6 font-semibold text-white hover:bg-red-600 hover:border-red-600 transition active:border-red-700 active:bg-red-700"
+      >
+        Admin Çıkış
+      </button>
+    </>
+  ) : (
+    <button
+      onClick={loginAsAdmin}
+      className="border border-gray-400 rounded-lg p-5 text-sm/6 font-semibold text-white hover:bg-gray-900 hover:border-gray-900 transition active:border-gray-900 active:bg-gray-900"
+    >
+      Admin Giriş <span aria-hidden="true">→</span>
+    </button>
+  )}
+</div>
+
           </div>
         </div>
 
@@ -214,6 +235,45 @@ export default function Home() {
                 Görevlerim
               </button>
             </Link>
+          </div>
+
+          {/* Admin Panel Access */}
+          <div className="mt-6 flex justify-center">
+            {isAdmin ? (
+              <div className="flex space-x-4">
+                <Link href="/admin">
+                  <button
+                    className="cursor-pointer rounded-lg bg-indigo-600 text-white shadow p-4 text-center font-semibold
+                   hover:bg-indigo-700 hover:scale-[1.02]
+                   active:bg-indigo-800 active:scale-[0.98]
+                   transition flex items-center space-x-2"
+                  >
+                    <ShieldCheckIcon className="h-5 w-5" />
+                    <span>Admin Panel</span>
+                  </button>
+                </Link>
+                <button
+                  onClick={logoutAdmin}
+                  className="cursor-pointer rounded-lg bg-red-600 text-white shadow p-4 text-center font-semibold
+                 hover:bg-red-700 hover:scale-[1.02]
+                 active:bg-red-800 active:scale-[0.98]
+                 transition"
+                >
+                  Admin Çıkış
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={loginAsAdmin}
+                className="cursor-pointer rounded-lg bg-green-600 text-white shadow p-4 text-center font-semibold
+               hover:bg-green-700 hover:scale-[1.02]
+               active:bg-green-800 active:scale-[0.98]
+               transition flex items-center space-x-2"
+              >
+                <ShieldCheckIcon className="h-5 w-5" />
+                <span>Admin Giriş</span>
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">

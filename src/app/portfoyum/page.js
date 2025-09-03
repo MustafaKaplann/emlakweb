@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import Link from "next/link";
-import Image from "next/image";
+import Image from 'next/image';
 import {
     Bars3Icon,
     XMarkIcon,
@@ -148,8 +148,13 @@ export default function Portfoyum() {
           <div className="flex lg:flex-1">
             <Link href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Emlak Web</span>
-              <Image alt="LOGO" src="" className="h-8 w-auto" />
-              </Link>
+              <Image 
+  alt="LOGO" 
+  src="" 
+  width={32} 
+  height={32} 
+  className="h-8 w-auto" 
+/>              </Link>
           </div>
           <div className="flex lg:hidden">
             <button
@@ -345,11 +350,13 @@ export default function Portfoyum() {
             {filteredProperties.map((property) => (
               <div key={property.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative">
-                  <Image
-                    src={property.image}
-                    alt={property.title}
-                    className="w-full h-48 object-cover"
-                  />
+                <Image
+  src={property.image}
+  alt={property.title}
+  width={600}
+  height={400}
+  className="w-full h-48 object-cover"
+/>
                   <div className="absolute top-2 right-2">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       property.status === 'Aktif' 
