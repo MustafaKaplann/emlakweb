@@ -8,6 +8,9 @@
   --foreground: #171717;
 }
 
+* {
+  scroll-behavior: smooth;
+}
 
 body {
   margin: 0;

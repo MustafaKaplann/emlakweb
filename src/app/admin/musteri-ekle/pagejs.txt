@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState, useEffect } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabaseClient'
+import { useAdmin } from '../../../contexts/AdminContext'
 import {
   Bars3Icon,
   XMarkIcon,
@@ -44,82 +44,16 @@ export default function MusteriEkle() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [errors, setErrors] = useState({})
-  const [loading, setLoading] = useState(true)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [currentUser, setCurrentUser] = useState(null)
-  const [submitError, setSubmitError] = useState(null)
+  const { isAdmin, isLoading, logoutAdmin } = useAdmin()
   const router = useRouter()
 
   useEffect(() => {
-    let mounted = true;
-    async function checkAdmin() {
-      setLoading(true)
-      try {
-        const { data: userData, error: userErr } = await supabase.auth.getUser()
-        if (userErr) throw userErr
-        const user = userData?.user ?? null
-        if (!user) {
-          // not signed in
-          if (mounted) {
-            setIsAdmin(false)
-            setLoading(false)
-            router.push('/admin') // go to login
-          }
-          return
-        }
-
-        // check profile.is_admin
-        const { data: profile, error: pErr } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', user.id)
-          .single();
-
-        if (pErr || !profile?.is_admin) {
-          // not admin -> sign out then redirect
-          await supabase.auth.signOut();
-          if (mounted) {
-            setIsAdmin(false)
-            setLoading(false)
-            router.push('/admin')
-          }
-          return
-        }
-
-        if (mounted) {
-          setCurrentUser(user)
-          setIsAdmin(true)
-          setLoading(false)
-        }
-      } catch (err) {
-        console.error('Admin check error', err)
-        // fallback: redirect to admin login
-        if (mounted) {
-          setIsAdmin(false)
-          setLoading(false)
-          router.push('/admin')
-        }
-      }
+    if (!isLoading && !isAdmin) {
+      router.push('/')
     }
+  }, [isAdmin, isLoading, router])
 
-    checkAdmin()
-
-    // listen to auth changes (optional, keep UI in sync)
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      // if signed out -> redirect to /admin
-      if (event === 'SIGNED_OUT' || !session?.user) {
-        router.push('/admin')
-      }
-    })
-
-    return () => {
-      mounted = false
-      if (listener) listener.subscription?.unsubscribe?.()
-    }
-  }, [router])
-
-  // show loading state while checking admin
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -130,8 +64,9 @@ export default function MusteriEkle() {
     )
   }
 
-  // if not admin, nothing rendered (we already redirected)
-  if (!isAdmin) return null
+  if (!isAdmin) {
+    return null
+  }
 
   const propertyTypes = [
     'Konut - Satılık',
@@ -190,16 +125,6 @@ export default function MusteriEkle() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut()
-    } catch (err) {
-      console.error('Logout error', err)
-    } finally {
-      router.push('/admin')
-    }
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -208,50 +133,37 @@ export default function MusteriEkle() {
     }
 
     setIsSubmitting(true)
-    setSubmitError(null)
-
+    
     try {
-      const insertObj = {
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email || null,
-        address: formData.location || null,
-        notes: formData.notes || null,
-         // Note: If your musteriler table uses 'location' field name, change 'address' to 'location'
-      }
-
-      // If your musteriler table uses specific column names (e.g., location), adjust insertObj accordingly.
-      // Add created_by so we know who added it:
-      if (currentUser?.id) insertObj.created_by = currentUser.id
-
-      const { data, error } = await supabase
-        .from('musteriler')
-        .insert(insertObj)
-        .select()
-        .single();
-
-      if (error) {
-        setSubmitError(error.message || 'Kayıt sırasında hata oluştu.')
-        console.error('Supabase insert error', error)
-      } else {
-        setShowSuccess(true)
-        setFormData({
-          name: '',
-          phone: '',
-          email: '',
-          location: '',
-          propertyType: 'Konut - Satılık',
-          budget: '',
-          status: 'Aktif',
-          notes: '',
-          lastContact: new Date().toISOString().split('T')[0]
-        })
-        setTimeout(() => setShowSuccess(false), 3000)
-      }
+      // Burada API çağrısı yapılacak
+      // const response = await fetch('/api/customers', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(formData)
+      // })
+      
+      // Simüle edilmiş API çağrısı
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      setShowSuccess(true)
+      setFormData({
+        name: '',
+        phone: '',
+        email: '',
+        location: '',
+        propertyType: 'Konut - Satılık',
+        budget: '',
+        status: 'Aktif',
+        notes: '',
+        lastContact: new Date().toISOString().split('T')[0]
+      })
+      
+      setTimeout(() => {
+        setShowSuccess(false)
+      }, 3000)
       
     } catch (error) {
       console.error('Müşteri eklenirken hata oluştu:', error)
-      setSubmitError(error.message || 'Bilinmeyen hata')
     } finally {
       setIsSubmitting(false)
     }
@@ -291,7 +203,7 @@ export default function MusteriEkle() {
                 <span className="text-sm font-semibold text-gray-900">Admin</span>
               </div>
               <button
-                onClick={handleLogout}
+                onClick={logoutAdmin}
                 className="text-sm font-semibold text-red-600 hover:text-red-700"
               >
                 Çıkış
@@ -339,7 +251,7 @@ export default function MusteriEkle() {
                     <span className="text-base font-semibold text-gray-900">Admin</span>
                   </div>
                   <button
-                    onClick={handleLogout}
+                    onClick={logoutAdmin}
                     className="text-base font-semibold text-red-600 hover:text-red-700"
                   >
                     Çıkış
@@ -381,19 +293,6 @@ export default function MusteriEkle() {
                 <p className="mt-1 text-sm text-green-700">
                   Yeni müşteri sisteme kaydedildi ve müşteriler listesinde görüntülenebilir.
                 </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Submit error */}
-        {submitError && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="flex">
-              <ExclamationTriangleIcon className="h-5 w-5 text-red-400" />
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">Hata</h3>
-                <p className="mt-1 text-sm text-red-700">{submitError}</p>
               </div>
             </div>
           </div>
