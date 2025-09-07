@@ -35,7 +35,7 @@ const navigation = [
   { name: "Ana Sayfa", href: "#" },
   { name: "Hakkımızda", href: "#hakkimizda" },
   { name: "Çalışmalarımız", href: "#calismalarimiz" },
-  { name: "İletişim", href: "#" },
+  { name: "İletişim", href: "/iletisim" },
   // { name: "Görevlerim", href: "#" },
 ];
 
@@ -203,7 +203,7 @@ export default function Home() {
   };
   return (
     <div
-      className="mainSec bg-position-[30%] sm:bg-center "
+      className="mainSec bg-position-[30%] sm:bg-center"
       style={{
         backgroundImage: "url('/sectionImg.jpg')",
         backgroundSize: "cover",
@@ -228,19 +228,19 @@ export default function Home() {
               href="/"
               className="group flex items-center space-x-3 -m-1.5 p-1.5"
             >
-              <div className="hidden lg:relative lg:inline-block">
+              {/* <div className="hidden lg:relative lg:inline-block">
                 <div className="w-10 h-10 bg-gradient-to-br from-orange-500 via-red-500 to-orange-600 rounded-xl flex items-center justify-center transform group-hover:rotate-12 group-hover:scale-110 transition-all duration-300 shadow-lg">
                   <HomeIcon className="w-6 h-6 text-white" />
                 </div>
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-orange-400 to-red-500 rounded-full animate-pulse"></div>
-              </div>
+              </div> */}
               <div className="hidden sm:block">
                 <span className="text-xl font-bold bg-gradient-to-r from-white via-orange-100 to-red-200 bg-clip-text text-transparent">
                   CASSAPARVA
                 </span>
-                <div className="text-xs text-gray-300 font-medium">
+                {/* <div className="text-xs text-gray-300 font-medium">
                   Emlak Yönetimi
-                </div>
+                </div> */}
               </div>
             </a>
           </div>
@@ -501,7 +501,7 @@ export default function Home() {
               </div>
 
               {/* Call to Action */}
-              <div className="flex flex-col sm:flex-row gap-4">
+              {/* <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="#">
                   <button className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden">
                     <span className="relative z-10 flex items-center justify-center space-x-2">
@@ -524,7 +524,7 @@ export default function Home() {
                     </span>
                   </button>
                 </Link>
-              </div>
+              </div> */}
 
               {/* Stats */}
               <div className="grid grid-cols-2 gap-6 pt-8 border-t border-gray-200">
@@ -1026,9 +1026,9 @@ export default function Home() {
             {/* Company Info */}
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 via-red-500 to-orange-600 rounded-xl flex items-center justify-center">
+                {/* <div className="w-10 h-10 bg-gradient-to-br from-orange-500 via-red-500 to-orange-600 rounded-xl flex items-center justify-center">
                   <HomeIcon className="w-6 h-6 text-white" />
-                </div>
+                </div> */}
                 <div>
                   <h3 className="text-xl font-bold">CASSAPARVA</h3>
                   <p className="text-sm text-gray-400">Emlak Yönetimi</p>
@@ -1136,10 +1136,10 @@ export default function Home() {
                   Hakkımızda
                 </Link>
                 <Link
-                  href="#"
+                  href="#calismalarimiz"
                   className="block text-gray-300 hover:text-orange-400 transition-colors duration-200"
                 >
-                  Portföyümüz
+                  Çalışmalarımız
                 </Link>
                 <Link
                   href="#"
@@ -1148,7 +1148,7 @@ export default function Home() {
                   Hizmetlerimiz
                 </Link>
                 <Link
-                  href="#"
+                  href="/iletisim"
                   className="block text-gray-300 hover:text-orange-400 transition-colors duration-200"
                 >
                   İletişim
@@ -1161,11 +1161,11 @@ export default function Home() {
           <div className="border-t border-gray-800 mt-12 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <p className="text-gray-400 text-sm">
-                © 2024 CASSAPARVA. Tüm hakları saklıdır.
+                © 2025 CASSAPARVA. Tüm hakları saklıdır.
               </p>
               <div className="flex items-center space-x-6">
                 <a href="https://www.linkedin.com/in/mustafakaplan0/">
-                  <span className="text-gray-400 text-sm">
+                  <span className="text-gray-400 text-sm hover:text-orange-400 transition">
                     by Mustafa Kaplan
                   </span>
                 </a>

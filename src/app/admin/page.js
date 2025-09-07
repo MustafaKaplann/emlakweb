@@ -1,17 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import { ShieldCheckIcon, UserIcon } from "@heroicons/react/24/outline";
+import { useAuth } from "@/components/AuthProvider"; // ✅ eklendi
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { session, loading } = useAuth(); // ✅ mevcut session'u çekiyoruz
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [useUsername, setUseUsername] = useState(false); // toggle: email vs username
+
+  // ✅ Eğer zaten giriş yapılmışsa formu göstermeden dashboard’a yönlendir
+  useEffect(() => {
+    if (!loading && session) {
+      (async () => {
+        const { data: profile, error: pErr } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", session.user.id)
+          .single();
+
+        if (!pErr && profile?.is_admin) {
+          router.replace("/admin/dashboard");
+        }
+      })();
+    }
+  }, [session, loading, router]);
 
   async function signInWithEmail(e) {
     e.preventDefault();
@@ -35,28 +54,19 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // admin mi kontrol et
       const { data: profile, error: pErr } = await supabase
         .from("profiles")
         .select("is_admin")
         .eq("id", user.id)
         .single();
 
-      if (pErr) {
-        setError("Profil bilgisi alınamadı: " + pErr.message);
-        // güvenlik için çıkış yap
-        await supabase.auth.signOut();
-        return;
-      }
-
-      if (!profile?.is_admin) {
+      if (pErr || !profile?.is_admin) {
         setError("Bu hesap admin değil.");
         await supabase.auth.signOut();
         return;
       }
 
-      // Başarılı -> admin paneline
-      router.push("/admin/dashboard"); // istersen '/admin/dashboard' yapabilirsin
+      router.push("/admin/dashboard");
     } catch (err) {
       console.error(err);
       setError(err?.message || "Bilinmeyen hata");
@@ -71,8 +81,6 @@ export default function AdminLoginPage() {
     setError("");
 
     try {
-      // önce profiles tablosunda username'e göre email bul
-      // NOT: profiles tablosunda 'username' sütunu yoksa bu sorgu hata dönebilir.
       const { data: rows, error: qErr } = await supabase
         .from("profiles")
         .select("id, email")
@@ -81,23 +89,18 @@ export default function AdminLoginPage() {
         .maybeSingle();
 
       if (qErr) {
-        // muhtemelen username sütunu yok veya başka DB hatası
         console.error("profiles sorgu hatası", qErr);
-        setError(
-          'Kullanıcı adı ile arama yapılamadı. profiles tablosunda "username" sütunu yok veya sorguda hata var.'
-        );
+        setError("Kullanıcı adıyla giriş yapılamadı.");
         return;
       }
 
-      if (!rows || !rows.email) {
-        setError("Bu kullanıcı adına sahip bir profil bulunamadı.");
+      if (!rows?.email) {
+        setError("Bu kullanıcı adına sahip profil bulunamadı.");
         return;
       }
 
-      // bulduğumuz email ile normal email+password girişini yap
-      const email = rows.email;
       const { data, error: signErr } = await supabase.auth.signInWithPassword({
-        email,
+        email: rows.email,
         password,
       });
 
@@ -112,27 +115,19 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // admin mi kontrol et (ek güvenlik)
       const { data: profile, error: pErr } = await supabase
         .from("profiles")
         .select("is_admin")
         .eq("id", user.id)
         .single();
 
-      if (pErr) {
-        setError("Profil bilgisi alınamadı: " + pErr.message);
-        await supabase.auth.signOut();
-        return;
-      }
-
-      if (!profile?.is_admin) {
+      if (pErr || !profile?.is_admin) {
         setError("Bu hesap admin değil.");
         await supabase.auth.signOut();
         return;
       }
 
-      // başarılı
-      router.push("/admin/dashboard"); // istersen '/admin/dashboard'
+      router.push("/admin/dashboard");
     } catch (err) {
       console.error(err);
       setError(err?.message || "Bilinmeyen hata");
@@ -142,9 +137,17 @@ export default function AdminLoginPage() {
   }
 
   function handleSubmit(e) {
-    // seçime göre ilgili fonksiyonu çağır
     if (useUsername) return signInWithUsername(e);
     return signInWithEmail(e);
+  }
+
+  // ✅ Eğer session kontrolü sürüyorsa loading gösterebiliriz
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Kontrol ediliyor...</p>
+      </div>
+    );
   }
 
   return (
@@ -161,7 +164,6 @@ export default function AdminLoginPage() {
           <div className="md:flex">
             {/* Left Hero Section */}
             <div className="hidden md:flex md:w-1/2 items-center justify-center bg-gradient-to-br from-orange-500 via-red-500 to-orange-600 p-8 relative">
-              {/* Decorative Elements */}
               <div className="absolute top-4 right-4 w-16 h-16 bg-white/10 rounded-full blur-xl"></div>
               <div className="absolute bottom-4 left-4 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
 
@@ -176,8 +178,6 @@ export default function AdminLoginPage() {
                   <br />
                   hoş geldiniz
                 </p>
-
-                {/* Decorative Line */}
                 <div className="flex items-center justify-center space-x-2 mt-6">
                   <div className="h-1 w-8 bg-white/30 rounded-full"></div>
                   <div className="h-1 w-4 bg-white/50 rounded-full"></div>
@@ -281,7 +281,6 @@ export default function AdminLoginPage() {
           </div>
         </div>
 
-        {/* Footer */}
         <p className="mt-4 text-center text-xs text-gray-500">
           Geliştirme amaçlı ücretsiz Supabase kimlik doğrulaması kullanılıyor.
         </p>
