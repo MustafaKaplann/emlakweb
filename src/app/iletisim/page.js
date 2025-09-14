@@ -240,6 +240,7 @@ export default function ContactPage() {
                   <div className="space-y-1 py-6">
                     {navigation.map((item) => (
                       <a
+                      onClick={() => setMobileMenuOpen(false)}
                         key={item.name}
                         href={item.href}
                         className="group flex items-center px-3 py-3 text-base font-semibold text-white hover:bg-gradient-to-r hover:from-orange-500/20 hover:to-red-500/20 rounded-xl transition-all duration-200"

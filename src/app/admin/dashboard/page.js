@@ -17,6 +17,7 @@ const ISITMA_TIPLERI = [
   "Yerden ısıtma",
 ];
 const SATIS_KIRALIK = ["Satılık", "Kiralık"];
+const CEPHELER = ["Doğu", "Batı", "Kuzey", "Güney"];
 const KONUT_TIPLERI = [
   "Konut",
   "Daire",
@@ -38,139 +39,55 @@ const ARSA_TAPU_DURUMLARI = [
 ];
 
 // Gömülü fallback Mersin verisi (eğer fetch başarısız olursa kullanılır)
+
 const MERSIN_ILCELERI = {
-  Akdeniz: [
-    "Adnan Menderes",
-    "Akdeniz",
-    "Anadolu",
-    "Bahçe",
-    "Barış",
-    "Çay",
-    "Çilek",
-    "Güneş",
-    "Hamidiye",
-    "İhsaniye",
-    "Kültür",
-    "Kazanlı",
-    "Karaduvar",
-    "Kiremithane",
-    "Mesudiye",
-    "Müfide İlhan",
-    "Mithatpaşa",
-    "Şevketsümer",
-    "Siteler",
-    "Turgutreis",
-    "Yeni",
-  ],
-  Mezitli: [
-    "Arpaçbahşiş",
-    "Aydınlıkevler",
-    "Bozön",
-    "Çeşmeli",
-    "Çavuşlu",
-    "Fuat Morel",
-    "Karacailyas",
-    "Kazım Karabekir",
-    "Moda",
-    "Mersin University",
-    "Tece",
-    "Yenimahalle",
-  ],
-  Yenişehir: [
-    "Çağdaşkent",
-    "Çankaya",
-    "Fener",
-    "Kocavilayet",
-    "Mersin",
-    "Karaduvar",
-    "Murat Reis",
-    "Nusratiye",
-    "Pirinçlik",
-    "Şahinali",
-    "Toroslar Mahallesi",
-  ],
-  Toroslar: [
-    "Dumlupınar",
-    "Erdemli",
-    "Gezende",
-    "Hürriyet",
-    "Konak",
-    "Pınarbaşı",
-    "Tepebağ",
-    "Yelki",
-    "Yenişehir Mah.",
-  ],
-  Tarsus: [
-    "82 Evler",
-    "Akgedik",
-    "Akşemsettin",
-    "Altaylılar",
-    "Anıt",
-    "Bağlar",
-    "Barbaros",
-    "Çağla",
-    "Cavdarlı",
-    "Çeşmeli",
-    "Çiftlik",
-    "Fahrettin Paşa",
-    "Gazipaşa",
-    "Gülek",
-    "Kırklarsırtı",
-    "Kavaklı",
-    "Mithatpaşa",
-    "Yeni",
-  ],
-  Erdemli: [
-    "Akkuyu",
-    "Aşırı Denizli",
-    "Arpaç",
-    "Beydemir",
-    "Çeşmeli",
-    "Dağlı",
-    "Elvanlı",
-    "Kızkalesi",
-    "Tömük",
-  ],
-  Silifke: [
-    "Atakent",
-    "Boğsak",
-    "Camiikebir",
-    "Çeltikçi",
-    "Erdemli Mah.",
-    "Hıdırlık",
-    "Mersin Yolu",
-    "Narlıkuyu",
-    "Yeşilovacık",
-  ],
-  Anamur: [
-    "Anamur Merkez",
-    "Bozyazı",
-    "Çarıklar",
-    "Erdemli Mah.",
-    "Kaledran",
-    "Kestel",
-    "Sugar",
-  ],
-  Aydıncık: ["Aydıncık Merkez", "Karadere", "Yeşilovacık", "Tersakan"],
-  Bozyazı: ["Bozyazı Merkez", "Tekeli", "Akpınar"],
-  Çamlıyayla: ["Çamlıyayla Merkez", "Köyler"],
-  Gülnar: ["Gülnar Merkez", "Ardıçlı", "Kızılkeçili", "Korucuk"],
-  Mut: ["Mut Merkez", "Karıncalı", "Hacıbaba", "Çamlıca"],
+  Akdeniz: ["Adnan Menderes"],
+  Mezitli: ["Arpaçbahşiş"],
+  Yenişehir: ["Çağdaşkent"],
+  Toroslar: ["Dumlupınar"],
+  Tarsus: ["82 Evler"],
+  Erdemli: ["Akkuyu"],
+  Silifke: ["Atakent"],
+  Anamur: ["Anamur Merkez"],
+  Aydıncık: ["Aydıncık Merkez"],
+  Bozyazı: ["Bozyazı Merkez"],
+  Çamlıyayla: ["Çamlıyayla Merkez"],
+  Gülnar: ["Gülnar Merkez"],
+  Mut: ["Mut Merkez"],
 };
 
 // ---------------- Admin Panel ----------------
 export default function AdminPanel() {
   // ************* tüm hook'lar burada, koşulsuz şekilde tanımlı olmalı *************
   // auth/ui
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(() => {
+    // Check if we have cached auth state to avoid initial loading
+    if (typeof window !== "undefined") {
+      const cachedAuth = localStorage.getItem("admin_auth_state");
+      if (cachedAuth === "true") {
+        return false; // Skip loading if we know user is admin
+      }
+    }
+    return true;
+  });
+  const [isAdmin, setIsAdmin] = useState(() => {
+    // Initialize with cached state if available
+    if (typeof window !== "undefined") {
+      const cachedAuth = localStorage.getItem("admin_auth_state");
+      return cachedAuth === "true";
+    }
+    return false;
+  });
   const router = useRouter();
 
   // Mersin ilçe/mahalle verisi
-  const [mersinIlceleriMap, setMersinIlceleriMap] = useState(MERSIN_ILCELERI);
-  const [mersinIlcelerList, setMersinIlcelerList] = useState(
-    Object.keys(MERSIN_ILCELERI).sort()
-  );
+  // const [mersinIlceleriMap, setMersinIlceleriMap] = useState(MERSIN_ILCELERI);
+  // const [mersinIlcelerList, setMersinIlcelerList] = useState(
+  //   Object.keys(MERSIN_ILCELERI).sort()
+  // );
+  const [mersinIlceleriMap, setMersinIlceleriMap] = useState({});
+  const [mersinIlcelerList, setMersinIlcelerList] = useState([]);
+
   const [mersinLoading, setMersinLoading] = useState(true);
 
   // demo data
@@ -180,7 +97,13 @@ export default function AdminPanel() {
   const [properties, setProperties] = useState(initialProperties);
 
   // UI state for app
-  const [route, setRoute] = useState("dashboard"); // dashboard | musterilerim | portfoyum
+  const [route, setRoute] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("admin_route") || "dashboard";
+    }
+    return "dashboard";
+  });
+   // dashboard | musterilerim | portfoyum
   const [showClientForm, setShowClientForm] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [showPropertyForm, setShowPropertyForm] = useState(false);
@@ -196,6 +119,16 @@ export default function AdminPanel() {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [showPropertyDetail, setShowPropertyDetail] = useState(false);
 
+  const [form, setForm] = useState(() => {
+    if (typeof window !== "undefined") {
+      // SSR değil, tarayıcı tarafı
+      const draft = localStorage.getItem("property_form_draft");
+      return draft ? JSON.parse(draft) : { id: null, media: [] };
+    }
+    // SSR sırasında boş bir form döndür
+    return { id: null, media: [] };
+  });
+
   // *******************************************************************
   // Now effects - also unconditional and in stable order
   // *******************************************************************
@@ -203,10 +136,16 @@ export default function AdminPanel() {
   // 1) Auth check & auth state listener
   useEffect(() => {
     let mounted = true;
+    let isInitialCheck = true;
 
     async function checkAdmin() {
       if (!mounted) return;
-      setIsLoading(true);
+
+      // Only show loading on initial check, not on auth state changes
+      if (isInitialCheck) {
+        setIsLoading(true);
+      }
+
       try {
         const { data: userData, error: userErr } =
           await supabase.auth.getUser();
@@ -240,15 +179,25 @@ export default function AdminPanel() {
         if (mounted) {
           setIsAdmin(true);
           setIsLoading(false);
+          // Cache auth state to avoid loading on next visit
+          if (typeof window !== "undefined") {
+            localStorage.setItem("admin_auth_state", "true");
+          }
         }
       } catch (err) {
         console.error("Admin auth check failed:", err);
         if (mounted) {
           setIsAdmin(false);
           setIsLoading(false);
+          // Clear cached auth state
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("admin_auth_state");
+          }
           router.push("/admin");
         }
       }
+
+      isInitialCheck = false;
     }
 
     checkAdmin();
@@ -256,9 +205,16 @@ export default function AdminPanel() {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === "SIGNED_OUT" || !session?.user) {
+          // Don't show loading for sign out
+          setIsAdmin(false);
+          // Clear cached auth state
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("admin_auth_state");
+          }
           router.push("/admin");
         }
         if (event === "SIGNED_IN") {
+          // Don't show loading for sign in, just check silently
           checkAdmin();
         }
       }
@@ -270,7 +226,7 @@ export default function AdminPanel() {
     };
   }, [router]);
 
-  // 2) Load Mersin JSON (unconditional)
+  // 2) Load Mersin JSON (unconditional) - Load silently without affecting main loading
   useEffect(() => {
     let mounted = true;
     async function loadMersinData() {
@@ -296,6 +252,8 @@ export default function AdminPanel() {
         setMersinLoading(false);
       }
     }
+
+    // Load immediately without delay
     loadMersinData();
     return () => {
       mounted = false;
@@ -314,14 +272,25 @@ export default function AdminPanel() {
     }
   }, []);
 
-  useEffect(
-    () => localStorage.setItem("admin_clients", JSON.stringify(clients)),
-    [clients]
-  );
-  useEffect(
-    () => localStorage.setItem("admin_properties", JSON.stringify(properties)),
-    [properties]
-  );
+  // Save to localStorage only when data actually changes
+  useEffect(() => {
+    if (clients.length > 0 || localStorage.getItem("admin_clients")) {
+      localStorage.setItem("admin_clients", JSON.stringify(clients));
+    }
+  }, [clients]);
+
+  useEffect(() => {
+    if (properties.length > 0 || localStorage.getItem("admin_properties")) {
+      localStorage.setItem("admin_properties", JSON.stringify(properties));
+    }
+  }, [properties]);
+
+  // Save route to localStorage
+  useEffect(() => {
+    if (!form.id && typeof window !== "undefined") {
+      localStorage.setItem("property_form_draft", JSON.stringify(form));
+    }
+  }, [form]);
 
   // *******************************************************************
   // Early returns (UI) are fine now because hooks all ran already
@@ -440,6 +409,10 @@ export default function AdminPanel() {
     } catch (err) {
       console.error("Logout error", err);
     } finally {
+      // Clear cached auth state
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("admin_auth_state");
+      }
       router.push("/admin");
     }
   };
@@ -547,15 +520,19 @@ export default function AdminPanel() {
 
               {/* Quick Actions */}
               <section className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-8">
+                <Link href="./musteri-ekle">
                 <ModernActionCard
-                  onClick={() => {
-                    setShowClientForm(true);
-                    setEditingClient(null);
-                  }}
+                //   onClick={
+                //     () => {
+                //     setShowClientForm(true);
+                //     setEditingClient(null);
+                //   }
+                // }
                   label="Yeni Müşteri"
                   icon="➕"
                   color="emerald"
                 />
+                </Link>
                 <ModernActionCard
                   onClick={() => setRoute("musterilerim")}
                   label="Müşteri Yönetimi"
@@ -824,6 +801,10 @@ export default function AdminPanel() {
         {showClientForm && (
           <ModernModal
             onClose={() => {
+              // Clear draft when closing modal
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("client_form_draft");
+              }
               setShowClientForm(false);
               setEditingClient(null);
             }}
@@ -831,13 +812,22 @@ export default function AdminPanel() {
             <ClientForm
               initial={editingClient}
               onSubmit={addOrUpdateClient}
-              onCancel={() => setShowClientForm(false)}
+              onCancel={() => {
+                if (typeof window !== "undefined") {
+                  localStorage.removeItem("client_form_draft");
+                }
+                setShowClientForm(false);
+              }}
             />
           </ModernModal>
         )}
         {showPropertyForm && (
           <ModernModal
             onClose={() => {
+              // Clear draft when closing modal
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("property_form_draft");
+              }
               setShowPropertyForm(false);
               setEditingProperty(null);
             }}
@@ -845,7 +835,12 @@ export default function AdminPanel() {
             <PropertyForm
               initial={editingProperty}
               onSubmit={addOrUpdateProperty}
-              onCancel={() => setShowPropertyForm(false)}
+              onCancel={() => {
+                if (typeof window !== "undefined") {
+                  localStorage.removeItem("property_form_draft");
+                }
+                setShowPropertyForm(false);
+              }}
               mersinIlceleriMap={mersinIlceleriMap}
               mersinIlcelerList={mersinIlcelerList}
               mersinLoading={mersinLoading}
@@ -1238,19 +1233,85 @@ function FloatingActionButton({ visible, label, onClick }) {
   );
 }
 
+// müşteri bölümü
 function ClientForm({ initial = null, onSubmit, onCancel }) {
-  const [form, setForm] = useState(() => ({
-    id: initial?.id || null,
-    name: initial?.name || "",
-    email: initial?.email || "",
-    phone: initial?.phone || "",
-    notes: initial?.notes || "",
-    active: initial?.active ?? true,
-  }));
+  const [form, setForm] = useState(() => {
+    // If editing existing client, use initial data (including desiredProperty if varsa)
+    if (initial?.id) {
+      return {
+        id: initial.id,
+        name: initial.name || "",
+        email: initial.email || "",
+        phone: initial.phone || "",
+        notes: initial.notes || "",
+        active: initial.active ?? true,
+        desiredProperty: initial.desiredProperty || {
+          type: "",
+          ilce: "",
+          mahalle: "",
+          minPrice: "",
+          maxPrice: "",
+          emlakTipi: "",
+          odaSayisi: "",
+          metrekare: "",
+        },
+      };
+    }
+
+    // For new client, try to restore from localStorage draft
+    if (typeof window !== "undefined") {
+      const savedForm = localStorage.getItem("client_form_draft");
+      if (savedForm) {
+        try {
+          return JSON.parse(savedForm);
+        } catch (e) {
+          console.warn("Failed to parse saved client form");
+        }
+      }
+    }
+
+    // Default empty form
+    return {
+      id: null,
+      name: "",
+      email: "",
+      phone: "",
+      notes: "",
+      active: true,
+      desiredProperty: {
+        type: "",
+        ilce: "",
+        mahalle: "",
+        minPrice: "",
+        maxPrice: "",
+        emlakTipi: "",
+        odaSayisi: "",
+        metrekare: "",
+      },
+    };
+  });
+
+  // Save form to localStorage on changes (only for new clients)
+  useEffect(() => {
+    if (!form.id && typeof window !== "undefined") {
+      try {
+        localStorage.setItem("client_form_draft", JSON.stringify(form));
+      } catch (e) {
+        console.warn("Could not save client draft", e);
+      }
+    }
+  }, [form]);
 
   function submit(e) {
     e.preventDefault();
     if (!form.name) return alert("Müşteri adı gerekli");
+    if (!form.phone) return alert("Telefon numarası gerekli");
+
+    // Clear draft after successful submission
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("client_form_draft");
+    }
+
     onSubmit(form);
   }
 
@@ -1286,7 +1347,7 @@ function ClientForm({ initial = null, onSubmit, onCancel }) {
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
-            Telefon
+            Telefon *
           </label>
           <input
             value={form.phone}
@@ -1310,6 +1371,183 @@ function ClientForm({ initial = null, onSubmit, onCancel }) {
         />
       </div>
 
+      {/* ---------- Müşterinin İstediği Emlak (desiredProperty) ---------- */}
+      <div className="pt-4 border-t">
+        <h4 className="text-lg font-medium text-slate-800 mb-3">
+          Müşterinin İstediği Emlak (isteğe bağlı)
+        </h4>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm text-slate-700 mb-2">
+              Emlak Tipi
+            </label>
+            <select
+              value={form.desiredProperty.type}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  desiredProperty: {
+                    ...form.desiredProperty,
+                    type: e.target.value,
+                  },
+                })
+              }
+              className="w-full rounded-2xl border border-slate-200 p-3 bg-white"
+            >
+              <option value="">-- Seçiniz --</option>
+              <option value="Konut">Konut</option>
+              <option value="İş yeri">İş yeri</option>
+              <option value="Arsa">Arsa</option>
+              <option value="Bina">Bina</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-700 mb-2">
+              Konut Tipi (opsiyonel)
+            </label>
+            <input
+              value={form.desiredProperty.emlakTipi}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  desiredProperty: {
+                    ...form.desiredProperty,
+                    emlakTipi: e.target.value,
+                  },
+                })
+              }
+              className="w-full rounded-2xl border border-slate-200 p-3 bg-white"
+              placeholder="örn. Daire, Villa..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-700 mb-2">
+              İlçe (opsiyonel)
+            </label>
+            <input
+              value={form.desiredProperty.ilce}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  desiredProperty: {
+                    ...form.desiredProperty,
+                    ilce: e.target.value,
+                  },
+                })
+              }
+              className="w-full rounded-2xl border border-slate-200 p-3 bg-white"
+              placeholder="örn. Mezitli"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-700 mb-2">
+              Mahalle (opsiyonel)
+            </label>
+            <input
+              value={form.desiredProperty.mahalle}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  desiredProperty: {
+                    ...form.desiredProperty,
+                    mahalle: e.target.value,
+                  },
+                })
+              }
+              className="w-full rounded-2xl border border-slate-200 p-3 bg-white"
+              placeholder="örn. Tece"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-700 mb-2">
+              Min Fiyat (TL)
+            </label>
+            <input
+              value={form.desiredProperty.minPrice}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  desiredProperty: {
+                    ...form.desiredProperty,
+                    minPrice: e.target.value,
+                  },
+                })
+              }
+              type="number"
+              className="w-full rounded-2xl border border-slate-200 p-3 bg-white"
+              placeholder="örn. 1500000"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-700 mb-2">
+              Max Fiyat (TL)
+            </label>
+            <input
+              value={form.desiredProperty.maxPrice}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  desiredProperty: {
+                    ...form.desiredProperty,
+                    maxPrice: e.target.value,
+                  },
+                })
+              }
+              type="number"
+              className="w-full rounded-2xl border border-slate-200 p-3 bg-white"
+              placeholder="örn. 3000000"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-700 mb-2">
+              Oda Sayısı (opsiyonel)
+            </label>
+            <input
+              value={form.desiredProperty.odaSayisi}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  desiredProperty: {
+                    ...form.desiredProperty,
+                    odaSayisi: e.target.value,
+                  },
+                })
+              }
+              className="w-full rounded-2xl border border-slate-200 p-3 bg-white"
+              placeholder="örn. 3+1"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-700 mb-2">
+              Metrekare (opsiyonel)
+            </label>
+            <input
+              value={form.desiredProperty.metrekare}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  desiredProperty: {
+                    ...form.desiredProperty,
+                    metrekare: e.target.value,
+                  },
+                })
+              }
+              type="number"
+              className="w-full rounded-2xl border border-slate-200 p-3 bg-white"
+              placeholder="örn. 120"
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="flex items-center gap-3">
         <label className="flex items-center gap-3 cursor-pointer">
           <input
@@ -1326,7 +1564,13 @@ function ClientForm({ initial = null, onSubmit, onCancel }) {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={onCancel}
+          onClick={() => {
+            // Clear draft when canceling
+            if (typeof window !== "undefined") {
+              localStorage.removeItem("client_form_draft");
+            }
+            onCancel();
+          }}
           type="button"
           className="px-6 py-3 rounded-2xl border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50 transition-colors"
         >
@@ -1338,7 +1582,7 @@ function ClientForm({ initial = null, onSubmit, onCancel }) {
           type="submit"
           className="px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium shadow-lg hover:shadow-xl transition-all"
         >
-          💾 Kaydet
+          Kaydet
         </motion.button>
       </div>
     </form>
@@ -1349,79 +1593,158 @@ function PropertyForm({
   initial = null,
   onSubmit,
   onCancel,
-  mersinIlceleriMap = MERSIN_ILCELERI,
-  mersinIlcelerList = Object.keys(MERSIN_ILCELERI).sort(),
+  mersinIlceleriMap,
+  mersinIlcelerList,
+  // mersinIlceleriMap = MERSIN_ILCELERI,
+  // mersinIlcelerList = Object.keys(MERSIN_ILCELERI).sort(),
   mersinLoading = false,
 }) {
-  const [form, setForm] = useState(() => ({
-    id: initial?.id || null,
-    title: initial?.title || "",
-    type: initial?.type || EMLAK_TIPLERI[0],
-    konutTipi: initial?.konutTipi || KONUT_TIPLERI[0],
-    saleType: initial?.saleType || SATIS_KIRALIK[0],
-    il: "Mersin",
-    ilce: initial?.ilce || "",
-    mahalle: initial?.mahalle || "",
-    m2Brut: initial?.m2Brut || "",
-    m2Net: initial?.m2Net || "",
-    odaSayisi: initial?.odaSayisi || "",
-    binaYasi: initial?.binaYasi || "",
-    bulunduKat: initial?.bulunduKat || "",
-    binadakiKatSayisi: initial?.binadakiKatSayisi || "",
-    esya: initial?.esya || "",
-    isitma: initial?.isitma || ISITMA_TIPLERI[0],
-    banyoSayisi: initial?.banyoSayisi || "",
-    mutfakSayisi: initial?.mutfakSayisi || "",
-    balkonSayisi: initial?.balkonSayisi || "",
-    asansor: initial?.asansor || "",
-    otopark: initial?.otopark || "",
-    siteIci: initial?.siteIci || "",
-    krediUygun: initial?.krediUygun || "",
-    cephe: initial?.cephe || "",
-    takas: initial?.takas || "",
-    adaNo: initial?.adaNo || "",
-    parselNo: initial?.parselNo || "",
-    kaks: initial?.kaks || "",
-    gabari: initial?.gabari || "",
-    tapuDurumu: initial?.tapuDurumu || "",
-    daireSayisiKat: initial?.daireSayisiKat || "",
-    daireMetre: initial?.daireMetre || "",
-    description: initial?.description || "",
-    fiyatTL: initial?.fiyatTL || "",
-    fiyatUSD: initial?.fiyatUSD || "",
-    media: initial?.media || [],
-  }));
+  const [form, setForm] = useState(() => {
+    // If editing existing property, use initial data
+    if (initial?.id) {
+      return {
+        id: initial.id,
+        title: initial.title || "",
+        type: initial.type || EMLAK_TIPLERI[0],
+        konutTipi: initial.konutTipi || KONUT_TIPLERI[0],
+        saleType: initial.saleType || SATIS_KIRALIK[0],
+        il: "Mersin",
+        ilce: initial.ilce || "",
+        mahalle: initial.mahalle || "",
+        m2Brut: initial.m2Brut || "",
+        m2Net: initial.m2Net || "",
+        odaSayisi: initial.odaSayisi || "",
+        binaYasi: initial.binaYasi || "",
+        bulunduKat: initial.bulunduKat || "",
+        binadakiKatSayisi: initial.binadakiKatSayisi || "",
+        esya: initial.esya || "",
+        isitma: initial.isitma || ISITMA_TIPLERI[0],
+        cephe: initial.cephe || CEPHELER[0],
+        banyoSayisi: initial.banyoSayisi || "",
+        mutfakSayisi: initial.mutfakSayisi || "",
+        balkonSayisi: initial.balkonSayisi || "",
+        asansor: initial.asansor || "",
+        otopark: initial.otopark || "",
+        siteIci: initial.siteIci || "",
+        krediUygun: initial.krediUygun || "",
+        takas: initial.takas || "",
+        adaNo: initial.adaNo || "",
+        parselNo: initial.parselNo || "",
+        kaks: initial.kaks || "",
+        gabari: initial.gabari || "",
+        tapuDurumu: initial.tapuDurumu || "",
+        daireSayisiKat: initial.daireSayisiKat || "",
+        daireMetre: initial.daireMetre || "",
+        description: initial.description || "",
+        fiyatTL: initial.fiyatTL || "",
+        fiyatUSD: initial.fiyatUSD || "",
+        media: initial.media || [],
+      };
+    }
+
+    // For new property, try to restore from localStorage
+    if (typeof window !== "undefined") {
+      const savedForm = localStorage.getItem("property_form_draft");
+      if (savedForm) {
+        try {
+          return JSON.parse(savedForm);
+        } catch (e) {
+          console.warn("Failed to parse saved property form");
+        }
+      }
+    }
+
+    // Default empty form
+    return {
+      id: null,
+      title: "",
+      type: EMLAK_TIPLERI[0],
+      konutTipi: KONUT_TIPLERI[0],
+      saleType: SATIS_KIRALIK[0],
+      il: "Mersin",
+      ilce: "",
+      mahalle: "",
+      m2Brut: "",
+      m2Net: "",
+      odaSayisi: "",
+      binaYasi: "",
+      bulunduKat: "",
+      binadakiKatSayisi: "",
+      esya: "",
+      isitma: ISITMA_TIPLERI[0],
+      cephe: CEPHELER[0],
+      banyoSayisi: "",
+      mutfakSayisi: "",
+      balkonSayisi: "",
+      asansor: "",
+      otopark: "",
+      siteIci: "",
+      krediUygun: "",
+      takas: "",
+      adaNo: "",
+      parselNo: "",
+      kaks: "",
+      gabari: "",
+      tapuDurumu: "",
+      daireSayisiKat: "",
+      daireMetre: "",
+      description: "",
+      fiyatTL: "",
+      fiyatUSD: "",
+      media: [],
+    };
+  });
+  // Save form to localStorage on changes (only for new properties)
+  useEffect(() => {
+    if (!form.id && typeof window !== "undefined") {
+      localStorage.setItem("property_form_draft", JSON.stringify(form));
+    }
+  }, [form]);
 
   const fileRef = useRef();
 
   function onFileChange(e) {
     const files = Array.from(e.target.files || []);
     const newMedia = [];
-    files.forEach((f) => {
+
+    files.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (ev) => {
         const src = ev.target.result;
-        const type = f.type.startsWith("video/") ? "video" : "image";
-        newMedia.push({ type, src, name: f.name });
+        const type = file.type.startsWith("video/") ? "video" : "image";
+        newMedia.push({ type, src, name: file.name });
+
+        // Bütün dosyalar yüklendiğinde state'e ekle
         if (newMedia.length === files.length) {
-          setForm((prev) => ({ ...prev, media: [...prev.media, ...newMedia] }));
+          setForm((prev) => ({
+            ...prev,
+            media: [...(prev.media || []), ...newMedia], // null ihtimaline karşı
+          }));
         }
       };
-      reader.readAsDataURL(f);
+      reader.readAsDataURL(file);
     });
+
+    // Aynı dosyayı tekrar seçebilmek için sıfırla
     e.target.value = null;
   }
+
   function removeMedia(index) {
     setForm((prev) => ({
       ...prev,
       media: prev.media.filter((_, i) => i !== index),
     }));
   }
+  function clearAllMedia() {
+    setForm((prev) => ({
+      ...prev,
+      media: [],
+    }));
+  }
 
   // Required fields per type
   const requiredMap = {
     Konut: [
-      "il",
       "ilce",
       "mahalle",
       "konutTipi",
@@ -1434,10 +1757,9 @@ function PropertyForm({
       "binadakiKatSayisi",
       "fiyatTL",
     ],
-    "İş yeri": ["il", "ilce", "mahalle", "saleType", "m2Brut", "fiyatTL"],
-    Arsa: ["il", "ilce", "mahalle", "saleType", "m2Brut", "fiyatTL"],
+    "İş yeri": ["ilce", "mahalle", "saleType", "m2Brut", "fiyatTL"],
+    Arsa: ["ilce", "mahalle", "saleType", "m2Brut", "fiyatTL"],
     Bina: [
-      "il",
       "ilce",
       "mahalle",
       "binadakiKatSayisi",
@@ -1491,6 +1813,12 @@ function PropertyForm({
   function submit(e) {
     e.preventDefault();
     if (!validate()) return;
+
+    // Clear draft after successful submission
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("property_form_draft");
+    }
+
     // normalize some fields: ensure il always 'Mersin'
     const out = { ...form, il: "Mersin" };
     onSubmit(out);
@@ -1524,6 +1852,7 @@ function PropertyForm({
             onChange={(e) => setForm({ ...form, type: e.target.value })}
             className="w-full rounded-2xl border border-slate-200 p-4 bg-white text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           >
+            <option value="">-- Seçiniz --</option>
             {EMLAK_TIPLERI.map((t) => (
               <option key={t} value={t}>
                 {t}
@@ -1710,6 +2039,7 @@ function PropertyForm({
                 onChange={(e) => setForm({ ...form, isitma: e.target.value })}
                 className="mt-1 block w-full rounded-lg border p-2"
               >
+                <option value="">-- Seçiniz --</option>
                 {ISITMA_TIPLERI.map((s) => (
                   <option key={s} value={s}>
                     {s}
@@ -1804,8 +2134,8 @@ function PropertyForm({
                 className="mt-1 block w-full rounded-lg border p-2"
               >
                 <option value="">-- Seçiniz --</option>
-                <option>Var</option>
-                <option>Yok</option>
+                <option>Evet</option>
+                <option>Hayır</option>
               </select>
             </div>
           </div>
@@ -1820,18 +2150,25 @@ function PropertyForm({
                 }
                 className="mt-1 block w-full rounded-lg border p-2"
               >
-                <option value="">Belirtilmemiş</option>
+                <option value="">-- Seçiniz --</option>
                 <option>Evet</option>
                 <option>Hayır</option>
               </select>
             </div>
             <div>
               <label className="text-sm">Cephe</label>
-              <input
+              <select
                 value={form.cephe}
                 onChange={(e) => setForm({ ...form, cephe: e.target.value })}
                 className="mt-1 block w-full rounded-lg border p-2"
-              />
+              >
+                <option value="">-- Seçiniz --</option>
+                {CEPHELER.map((k) => (
+                  <option key={k} value={k}>
+                    {k}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="text-sm">Açıklama</label>
@@ -1854,7 +2191,8 @@ function PropertyForm({
                 className="mt-1 block w-full rounded-lg border p-2"
               />
             </div>
-            <div>
+
+            {/* <div>
               <label className="text-sm">Fotoğraf/Video Yükle</label>
               <input
                 ref={fileRef}
@@ -1864,8 +2202,71 @@ function PropertyForm({
                 multiple
                 className="mt-1 block w-full"
               />
+            </div> */}
+          </div>
+
+          {/* MEDYA YÜKLEME (BASİT TASARIM) */}
+          <div className="w-full max-w-md mx-auto border border-gray-300 rounded-lg p-4 bg-white">
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+              Medya Yükle
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Görsel veya video dosyası seçin
+            </p>
+
+            <div className="mb-4">
+              <input
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                ref={fileRef}
+                onChange={onFileChange}
+                className="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
+              />
+            </div>
+
+            <div className="flex justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="flex-1 py-2 px-4 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                Daha fazla yükle
+              </button>
+              <button
+                type="button"
+                onClick={clearAllMedia}
+                className="flex-1 py-2 px-4 text-sm bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition-colors"
+              >
+                Hepsini Sil
+              </button>
             </div>
           </div>
+
+          {form.media.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {form.media.map((item, index) => (
+                <div key={index} className="relative border rounded p-2">
+                  {item.type === "image" ? (
+                    <img
+                      src={item.src}
+                      alt={item.name}
+                      className="w-full h-auto"
+                    />
+                  ) : (
+                    <video src={item.src} controls className="w-full h-auto" />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeMedia(index)}
+                    className="absolute top-1 right-1 text-sm text-red-500"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
 
@@ -1915,16 +2316,109 @@ function PropertyForm({
                 className="mt-1 block w-full rounded-lg border p-2"
               />
             </div>
-            <div>
-              <label className="text-sm">Fotoğraf/Video Yükle</label>
-              <input
-                ref={fileRef}
-                onChange={onFileChange}
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                className="mt-1 block w-full"
-              />
+            {/* MEDYA YÜKLEME */}
+            <div className="group relative w-full max-w-[420px] sm:max-w-[420px] mx-auto sm:mx-0">
+              <div className="relative overflow-hidden rounded-2xl bg-gray-200 shadow-2xl transition-all duration-300">
+                <div className="absolute -left-16 -top-16 h-32 w-32 rounded-full bg-gradient-to-br from-cyan-500/20 to-sky-500/0 blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-70"></div>
+                <div className="absolute -right-16 -bottom-16 h-32 w-32 rounded-full bg-gradient-to-br from-sky-500/20 to-cyan-500/0 blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-70"></div>
+
+                <div className="relative p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Dosyaları Yükle
+                      </h3>
+                      <p className="text-sm text-gray-900">
+                        Dosyalarınızı buraya sürükleyip bırakın
+                      </p>
+                    </div>
+                    <div className="hidden rounded-lg bg-cyan-500/10 p-2 sm:flex justify-center items-center mt-2 sm:mt-0">
+                      <svg
+                        className="h-6 w-6 text-cyan-900"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        ></path>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="group/dropzone mt-6">
+                    <div className="relative rounded-xl border-2 border-dashed border-slate-700 bg-slate-400/50 p-4 sm:p-8 transition-colors group-hover/dropzone:border-cyan-500/50">
+                      <input
+                        type="file"
+                        accept="image/*,video/*"
+                        className="absolute inset-0 z-50 h-full w-full cursor-pointer opacity-0"
+                        multiple
+                        ref={fileRef}
+                        onChange={onFileChange}
+                      />
+                      <div className="space-y-6 text-center">
+                        <div className="mx-auto flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-slate-900">
+                          <svg
+                            className="h-8 w-8 sm:h-10 sm:w-10 text-cyan-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            ></path>
+                          </svg>
+                        </div>
+
+                        <div className="space-y-2">
+                          <p className="text-base font-medium text-gray-900">
+                            Dosyalarınızı buraya bırakın veya göz atın
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Support files: JPG, PNG, MP4
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            Max file size: ..MB
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button className="group/btn relative overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500 to-sky-500 p-px font-medium text-white shadow-[0_1000px_0_0_hsl(0_0%_100%_/_0%)_inset] transition-colors hover:shadow-[0_1000px_0_0_hsl(0_0%_100%_/_2%)_inset]">
+                      <span className="relative flex items-center justify-center gap-2 rounded-xl bg-slate-950/50 px-4 py-2 transition-colors group-hover/btn:bg-transparent">
+                        Daha fazla yükle
+                        <svg
+                          className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                          ></path>
+                        </svg>
+                      </span>
+                    </button>
+                    <button
+                      onClick={removeMedia}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 font-medium text-white transition-colors hover:bg-slate-800"
+                    >
+                      Hepsini Sil
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </>
@@ -2031,16 +2525,109 @@ function PropertyForm({
                 className="mt-1 block w-full rounded-lg border p-2"
               />
             </div>
-            <div>
-              <label className="text-sm">Fotoğraf/Video Yükle</label>
-              <input
-                ref={fileRef}
-                onChange={onFileChange}
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                className="mt-1 block w-full"
-              />
+            {/* MEDYA YÜKLEME */}
+            <div className="group relative w-full max-w-[420px] sm:max-w-[420px] mx-auto sm:mx-0">
+              <div className="relative overflow-hidden rounded-2xl bg-gray-200 shadow-2xl transition-all duration-300">
+                <div className="absolute -left-16 -top-16 h-32 w-32 rounded-full bg-gradient-to-br from-cyan-500/20 to-sky-500/0 blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-70"></div>
+                <div className="absolute -right-16 -bottom-16 h-32 w-32 rounded-full bg-gradient-to-br from-sky-500/20 to-cyan-500/0 blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-70"></div>
+
+                <div className="relative p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Dosyaları Yükle
+                      </h3>
+                      <p className="text-sm text-gray-900">
+                        Dosyalarınızı buraya sürükleyip bırakın
+                      </p>
+                    </div>
+                    <div className="hidden rounded-lg bg-cyan-500/10 p-2 sm:flex justify-center items-center mt-2 sm:mt-0">
+                      <svg
+                        className="h-6 w-6 text-cyan-900"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        ></path>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="group/dropzone mt-6">
+                    <div className="relative rounded-xl border-2 border-dashed border-slate-700 bg-slate-400/50 p-4 sm:p-8 transition-colors group-hover/dropzone:border-cyan-500/50">
+                      <input
+                        type="file"
+                        accept="image/*,video/*"
+                        className="absolute inset-0 z-50 h-full w-full cursor-pointer opacity-0"
+                        multiple
+                        ref={fileRef}
+                        onChange={onFileChange}
+                      />
+                      <div className="space-y-6 text-center">
+                        <div className="mx-auto flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-slate-900">
+                          <svg
+                            className="h-8 w-8 sm:h-10 sm:w-10 text-cyan-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            ></path>
+                          </svg>
+                        </div>
+
+                        <div className="space-y-2">
+                          <p className="text-base font-medium text-gray-900">
+                            Dosyalarınızı buraya bırakın veya göz atın
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Support files: JPG, PNG, MP4
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            Max file size: ..MB
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button className="group/btn relative overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500 to-sky-500 p-px font-medium text-white shadow-[0_1000px_0_0_hsl(0_0%_100%_/_0%)_inset] transition-colors hover:shadow-[0_1000px_0_0_hsl(0_0%_100%_/_2%)_inset]">
+                      <span className="relative flex items-center justify-center gap-2 rounded-xl bg-slate-950/50 px-4 py-2 transition-colors group-hover/btn:bg-transparent">
+                        Daha fazla yükle
+                        <svg
+                          className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                          ></path>
+                        </svg>
+                      </span>
+                    </button>
+                    <button
+                      onClick={removeMedia}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 font-medium text-white transition-colors hover:bg-slate-800"
+                    >
+                      Hepsini Sil
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </>
@@ -2095,6 +2682,7 @@ function PropertyForm({
                 onChange={(e) => setForm({ ...form, isitma: e.target.value })}
                 className="mt-1 block w-full rounded-lg border p-2"
               >
+                <option value="">-- Seçiniz --</option>
                 {ISITMA_TIPLERI.map((s) => (
                   <option key={s}>{s}</option>
                 ))}
@@ -2147,16 +2735,109 @@ function PropertyForm({
             </div>
           </div>
 
-          <div className="mt-2">
-            <label className="text-sm">Fotoğraf/Video Yükle</label>
-            <input
-              ref={fileRef}
-              onChange={onFileChange}
-              type="file"
-              accept="image/*,video/*"
-              multiple
-              className="mt-1 block w-full"
-            />
+          {/* MEDYA YÜKLEME */}
+          <div className="group relative w-full max-w-[420px] sm:max-w-[420px] mx-auto sm:mx-0">
+            <div className="relative overflow-hidden rounded-2xl bg-gray-200 shadow-2xl transition-all duration-300">
+              <div className="absolute -left-16 -top-16 h-32 w-32 rounded-full bg-gradient-to-br from-cyan-500/20 to-sky-500/0 blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-70"></div>
+              <div className="absolute -right-16 -bottom-16 h-32 w-32 rounded-full bg-gradient-to-br from-sky-500/20 to-cyan-500/0 blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-70"></div>
+
+              <div className="relative p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Dosyaları Yükle
+                    </h3>
+                    <p className="text-sm text-gray-900">
+                      Dosyalarınızı buraya sürükleyip bırakın
+                    </p>
+                  </div>
+                  <div className="hidden rounded-lg bg-cyan-500/10 p-2 sm:flex justify-center items-center mt-2 sm:mt-0">
+                    <svg
+                      className="h-6 w-6 text-cyan-900"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      ></path>
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="group/dropzone mt-6">
+                  <div className="relative rounded-xl border-2 border-dashed border-slate-700 bg-slate-400/50 p-4 sm:p-8 transition-colors group-hover/dropzone:border-cyan-500/50">
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      className="absolute inset-0 z-50 h-full w-full cursor-pointer opacity-0"
+                      multiple
+                      ref={fileRef}
+                      onChange={onFileChange}
+                    />
+                    <div className="space-y-6 text-center">
+                      <div className="mx-auto flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-slate-900">
+                        <svg
+                          className="h-8 w-8 sm:h-10 sm:w-10 text-cyan-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          ></path>
+                        </svg>
+                      </div>
+
+                      <div className="space-y-2">
+                        <p className="text-base font-medium text-gray-900">
+                          Dosyalarınızı buraya bırakın veya göz atın
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Support files: JPG, PNG, MP4
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          Max file size: ..MB
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <button className="group/btn relative overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500 to-sky-500 p-px font-medium text-white shadow-[0_1000px_0_0_hsl(0_0%_100%_/_0%)_inset] transition-colors hover:shadow-[0_1000px_0_0_hsl(0_0%_100%_/_2%)_inset]">
+                    <span className="relative flex items-center justify-center gap-2 rounded-xl bg-slate-950/50 px-4 py-2 transition-colors group-hover/btn:bg-transparent">
+                      Daha fazla yükle
+                      <svg
+                        className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        ></path>
+                      </svg>
+                    </span>
+                  </button>
+                  <button
+                    onClick={removeMedia}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 font-medium text-white transition-colors hover:bg-slate-800"
+                  >
+                    Hepsini Sil
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </>
       )}
@@ -2165,7 +2846,13 @@ function PropertyForm({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={onCancel}
+          onClick={() => {
+            // Clear draft when canceling
+            if (typeof window !== "undefined") {
+              localStorage.removeItem("property_form_draft");
+            }
+            onCancel();
+          }}
           type="button"
           className="px-6 py-3 rounded-2xl border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50 transition-colors"
         >
@@ -2177,7 +2864,7 @@ function PropertyForm({
           type="submit"
           className="px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium shadow-lg hover:shadow-xl transition-all"
         >
-          💾 Kaydet
+          Kaydet
         </motion.button>
       </div>
     </form>
@@ -2349,7 +3036,6 @@ function PropertyDetail({ property, onClose }) {
           }
         />
       </div>
-
       <div className="pt-6 text-right">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -2363,7 +3049,6 @@ function PropertyDetail({ property, onClose }) {
     </div>
   );
 }
-
 function ModernDetailRow({ label, value }) {
   return (
     <div className="p-4 bg-slate-50 rounded-2xl">
@@ -2374,7 +3059,6 @@ function ModernDetailRow({ label, value }) {
     </div>
   );
 }
-
 function ThumbPreview({ media = [] }) {
   if (!media || media.length === 0)
     return (
@@ -2397,11 +3081,9 @@ function ThumbPreview({ media = [] }) {
     </div>
   );
 }
-
 function cryptoRandomId() {
   return Math.random().toString(36).slice(2, 9);
 }
-
 function formatTL(v) {
   if (!v) return "";
   try {

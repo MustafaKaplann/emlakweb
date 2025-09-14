@@ -4,9 +4,11 @@ import "./globals.css";
 import "./style.css";
 import Link from "next/link";
 import Image from "next/image";
+import TrueFocus from "../components/TrueFocus";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
+
 // import { useAdmin } from "../contexts/AdminContext";
 import {
   Bars3Icon,
@@ -30,7 +32,6 @@ import {
   UsersIcon,
   ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
-
 const navigation = [
   { name: "Ana Sayfa", href: "#" },
   { name: "Hakkımızda", href: "#hakkimizda" },
@@ -38,6 +39,8 @@ const navigation = [
   { name: "İletişim", href: "/iletisim" },
   // { name: "Görevlerim", href: "#" },
 ];
+
+
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -121,7 +124,7 @@ export default function Home() {
     },
     {
       id: 7,
-      title: "Duplex Daire",
+      title: "Dublex Daire",
       description: "İki katlı yaşam alanları ile özel tasarım",
       image:
         "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
@@ -201,7 +204,9 @@ export default function Home() {
       (prev) => (prev - 1 + testimonials.length) % testimonials.length
     );
   };
+
   return (
+
     <div
       className="mainSec bg-position-[30%] sm:bg-center"
       style={{
@@ -213,6 +218,10 @@ export default function Home() {
         width: "100%",
       }}
     >
+
+
+
+
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-transform duration-300 ${
           showNavbar ? "translate-y-0" : "-translate-y-full"
@@ -315,6 +324,7 @@ export default function Home() {
                 <div className="space-y-1 py-6">
                   {navigation.map((item) => (
                     <a
+                    onClick={() => setMobileMenuOpen(false)}
                       key={item.name}
                       href={item.href}
                       className="group flex items-center px-3 py-3 text-base font-semibold text-white hover:bg-gradient-to-r hover:from-orange-500/20 hover:to-red-500/20 rounded-xl transition-all duration-200"
@@ -362,11 +372,20 @@ export default function Home() {
 
         <div className="mx-auto max-w-2xl py-32">
           <div className="text-center">
-            <h1 className="text-5xl font-semibold tracking-tight text-balance text-white sm:text-7xl">
-              CASSAPARVA
-            </h1>
+            
+            <div className="text-5xl font-semibold tracking-tight text-balance text-white sm:text-7xl">
+              <TrueFocus
+                sentence="EMLAK YÖNETİMİ"
+                manualMode={false}
+                blurAmount={5}
+                borderColor="red"
+                animationDuration={2}
+                pauseBetweenAnimations={1}
+              />
+            </div>
+
             <p className="mt-8 text-lg font-medium text-pretty text-gray-400 sm:text-xl/8">
-              ALT SLOGAN
+              CASSAPARVA
             </p>
 
             <div className="flex flex-1 justify-center lg:hidden mt-10 hover:scale-[1.03] active:scale-[0.95] transition">
@@ -554,9 +573,12 @@ export default function Home() {
           </button>
         </div>
       </section>
-
+    
       {/* Best Work Section - Interior Views */}
-      <section id="calismalarimiz" className="relative bg-gray-50 py-20 lg:py-32">
+      <section
+        id="calismalarimiz"
+        className="relative bg-gray-50 py-20 lg:py-32"
+      >
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100"></div>
         <div className="absolute top-0 left-0 w-full h-full opacity-5">
@@ -1179,6 +1201,8 @@ export default function Home() {
           </div>
         </div>
       </footer>
+     
     </div>
+   
   );
 }
