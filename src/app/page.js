@@ -1071,11 +1071,11 @@ export default function Home() {
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
                   <PhoneIcon className="w-5 h-5 text-orange-400" />
-                  <span className="text-gray-300">+90 (212) 555 0123</span>
+                  <span className="text-gray-300">+90 (505) *** ****</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <EnvelopeIcon className="w-5 h-5 text-orange-400" />
-                  <span className="text-gray-300">info@cassaparva.com</span>
+                  <span className="text-gray-300">info@****.com</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <MapPinIcon className="w-5 h-5 text-orange-400" />
@@ -1100,7 +1100,7 @@ export default function Home() {
                   </svg>
                 </a>
                 <a
-                  href="https://twitter.com"
+                  href="https://x.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-500 transition-all duration-300 transform hover:scale-110"
@@ -1162,12 +1162,6 @@ export default function Home() {
                   className="block text-gray-300 hover:text-orange-400 transition-colors duration-200"
                 >
                   Çalışmalarımız
-                </Link>
-                <Link
-                  href="#"
-                  className="block text-gray-300 hover:text-orange-400 transition-colors duration-200"
-                >
-                  Hizmetlerimiz
                 </Link>
                 <Link
                   href="/iletisim"

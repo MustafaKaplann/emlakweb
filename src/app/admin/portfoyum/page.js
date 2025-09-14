@@ -3,6 +3,23 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import Link from "next/link";
+import { Dialog, DialogPanel } from "@headlessui/react";
+import {
+  Bars3Icon,
+  XMarkIcon,
+  ShieldCheckIcon,
+  XCircleIcon,
+  HomeModernIcon,
+} from "@heroicons/react/24/outline";
+
+const navigation = [
+  { name: "Ana Sayfa", href: "/" },
+  { name: "Müşteri Ekle", href: "./musteri-ekle" },
+  { name: "Müşteri Yönet", href: "./musterilerim" },
+  { name: "Portföy Ekle", href: "./portfoy-ekle" },
+  { name: "Portföy Yönet", href: "" },
+];
 
 const PortfoyListesi = () => {
   const router = useRouter();
@@ -15,6 +32,25 @@ const PortfoyListesi = () => {
   const [itemsPerPage] = useState(12);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  const [showNavbar, setShowNavbar] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+
+        // Check if mobile on mount and resize
+        useEffect(() => {
+          const checkMobile = () => {
+            setIsMobile(window.innerWidth < 1024);
+          };
+      
+          checkMobile();
+          window.addEventListener("resize", checkMobile);
+      
+          return () => window.removeEventListener("resize", checkMobile);
+        }, []);
+      
+  
 
   // Auth check & auth state listener
   useEffect(() => {
@@ -88,7 +124,7 @@ const PortfoyListesi = () => {
     const fetchIlanlar = async () => {
       if (!isAdmin) return;
       
-      setLoading(true);
+      
       try {
         let query = supabase
           .from('emlak_ilanlari')
@@ -145,6 +181,7 @@ const PortfoyListesi = () => {
 
         setIlanlar(formattedData);
         setCurrentPage(1); // Arama sonrası ilk sayfaya dön
+        // setLoading(true);
         console.log(`${formattedData.length} ilan yüklendi`);
 
       } catch (error) {
@@ -266,6 +303,7 @@ const PortfoyListesi = () => {
       router.push('/admin')
     }
   }
+  
 
   // Fiyat formatı
   const formatFiyat = (fiyat) => {
@@ -326,9 +364,129 @@ const PortfoyListesi = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
+    <div className="min-h-screen bg-gray-50">
+      {/* Sade Header */}
+      <header
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+          showNavbar ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
+        }`}
+      >
+        <nav
+          aria-label="Global"
+          className="bg-white shadow-sm border-b border-gray-200"
+        >
+          <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
+            {/* Logo/Brand */}
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                <HomeModernIcon className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-lg font-semibold text-gray-900 hidden sm:block">Admin Panel</span>
+            </div>
+
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-6">
+              {navigation.map((item, index) => (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  className={`px-3 py-2 text-sm font-medium transition-colors duration-200 ${
+                    item.name === "Portföy Yönet" 
+                      ? "text-orange-600 bg-orange-50 rounded-lg" 
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  {item.name}
+                </a>
+              ))}
+            </div>
+
+            {/* Desktop Actions */}
+            <div className="hidden lg:flex items-center space-x-4">
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-red-600 transition-colors duration-200 cursor-pointer"
+              >
+                <XCircleIcon className="w-4 h-4 mr-2" />
+                Çıkış Yap
+              </button>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="flex lg:hidden">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="inline-flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+              >
+                <span className="sr-only">Menüyü aç</span>
+                <Bars3Icon className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        {/* Sade Mobile Menu */}
+        <Dialog
+          open={mobileMenuOpen}
+          onClose={setMobileMenuOpen}
+          className="lg:hidden"
+        >
+          <div className="fixed inset-0 z-50 bg-black/50" />
+          <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm border-l border-gray-200 shadow-xl">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                  <HomeModernIcon className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-lg font-semibold text-gray-900">Admin Panel</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+              >
+                <span className="sr-only">Menüyü kapat</span>
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Navigation */}
+            <div className="space-y-1">
+              {navigation.map((item) => (
+                <a
+                  onClick={() => setMobileMenuOpen(false)}
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center px-3 py-3 text-base font-medium rounded-lg transition-colors duration-200 ${
+                    item.name === "Portföy Yönet" 
+                      ? "text-orange-600 bg-orange-50" 
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+                >
+                  {item.name}
+                </a>
+              ))}
+            </div>
+
+            {/* Logout Button */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center px-4 py-3 text-base font-medium text-gray-600 hover:text-red-600 transition-colors duration-200"
+              >
+                <XCircleIcon className="w-5 h-5 mr-2" />
+                Çıkış Yap
+              </button>
+            </div>
+          </DialogPanel>
+        </Dialog>
+      </header>
+      {/* Main Content */}
+      <div className="pt-20 pb-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
         <div className="mb-6">
           <div className="flex justify-between items-center">
             <div>
@@ -439,7 +597,7 @@ const PortfoyListesi = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => router.push('/admin/portfoy-ekle')}
-              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium"
+              className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium transition-colors duration-200 cursor-pointer"
             >
               <svg className="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -448,14 +606,14 @@ const PortfoyListesi = () => {
             </button>
             <button
               onClick={clearFilters}
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 font-medium"
+              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 font-medium transition-colors duration-200 cursor-pointer"
               disabled={!searchTerm && !filterType && !filterStatus}
             >
               Filtreleri Temizle
             </button>
             <button
               onClick={handleLogout}
-              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium"
+              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium transition-colors duration-200 cursor-pointer"
             >
               Çıkış Yap
             </button>
@@ -463,8 +621,8 @@ const PortfoyListesi = () => {
 
           {/* Arama sonucu bilgisi */}
           {(searchTerm || filterType || filterStatus) && (
-            <div className="mt-4 p-3 bg-green-50 rounded-md">
-              <p className="text-sm text-green-700">
+            <div className="mt-4 p-3 bg-orange-50 rounded-md">
+              <p className="text-sm text-orange-700">
                 {searchTerm && `"${searchTerm}" araması için`}
                 {(searchTerm && (filterType || filterStatus)) && ', '}
                 {filterType && `"${filterType}" kategorisinde`}
@@ -492,7 +650,7 @@ const PortfoyListesi = () => {
             </p>
             <button
               onClick={() => router.push('/admin/portfoy-ekle')}
-              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+              className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors duration-200 cursor-pointer"
             >
               {ilanlar.length === 0 ? 'İlk ilanını ekle' : 'Yeni ilan ekle'}
             </button>
@@ -663,7 +821,7 @@ const PortfoyListesi = () => {
                         onClick={() => setCurrentPage(page)}
                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                           currentPage === page
-                            ? 'z-10 bg-green-50 border-green-500 text-green-600'
+                            ? 'z-10 bg-orange-50 border-orange-500 text-orange-600'
                             : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                         }`}
                       >
@@ -683,6 +841,7 @@ const PortfoyListesi = () => {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
